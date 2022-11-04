@@ -22,6 +22,12 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+<!--		RestTemplate will be deprecated and as a replacement we use WebClient-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
