@@ -28,26 +28,25 @@ public class MovieCatalogResource
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId)
     {
-        // get all rated movie IDs
+        // get all rated movie IDs (call to 3rd micro-service))
         UserRating ratings = restTemplate.getForObject("http://localhost:8083/ratingsdata/users/" + userId, UserRating.class);
 
-        // for each movie ID, call movie info service and get details
+        // for each movie ID, call movie info service and get details (2nd micro-service)
         return ratings.getUserRating().stream().map(rating ->
                 {
                     Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId(), Movie.class);
+                    // put them all together
+                    return new CatalogItem(movie.getName(), "Cars transforming into robots", rating.getRating());
+                })
+                .collect(Collectors.toList());
+    }
+}
 
-                    /*This is the equivalent of doing the call with WebClient
+
+/*This is the equivalent of doing the call with WebClient
                     Movie movie = webClientBuilder.build()
                             .get()
                             .uri("http://localhost:8082/movies/" + rating.getMovieId())
                             .retrieve()
                             .bodyToMono(Movie.class)
                             .block();*/
-
-                    // put them all together
-                    return new CatalogItem(movie.getName(), "Cars transforming into robots", rating.getRating());
-                })
-                .collect(Collectors.toList());
-
-    }
-}
