@@ -3,6 +3,7 @@ package com.teojava.moviecatalogservice.resources;
 import com.teojava.moviecatalogservice.models.CatalogItem;
 import com.teojava.moviecatalogservice.models.Movie;
 import com.teojava.moviecatalogservice.models.Rating;
+import com.teojava.moviecatalogservice.models.UserRating;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,14 +29,10 @@ public class MovieCatalogResource
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId)
     {
         // get all rated movie IDs
-        List<Rating> ratings = Arrays.asList(
-                new Rating("1234", 4),
-                new Rating("5678", 3)
-        );
+        UserRating ratings = restTemplate.getForObject("http://localhost:8083/ratingsdata/users/" + userId, UserRating.class);
 
         // for each movie ID, call movie info service and get details
-        // put them all together
-        return ratings.stream().map(rating ->
+        return ratings.getUserRating().stream().map(rating ->
                 {
                     Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId(), Movie.class);
 
@@ -47,6 +44,7 @@ public class MovieCatalogResource
                             .bodyToMono(Movie.class)
                             .block();*/
 
+                    // put them all together
                     return new CatalogItem(movie.getName(), "Cars transforming into robots", rating.getRating());
                 })
                 .collect(Collectors.toList());
